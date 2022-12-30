@@ -41,7 +41,6 @@ async function run() {
       res.send(about);
     });
 
-
     //get comments on front-end
     app.get("/comment", async (req, res) => {
       const post_id = req.query.post_id;
@@ -56,7 +55,18 @@ async function run() {
       const result = await postsCollection.insertOne(post);
       res.send(result);
     });
-    
+    app.post("/comments", async (req, res) => {
+      const comment = req.body;
+      const result = await commentsCollection.insertOne(comment);
+      res.send(result);
+    });
+
+    app.get("/allposts", async (req, res) => {
+      const query = {};
+      const cursor = postsCollection.find(query).sort({ _id: -1 });
+      const posts = await cursor.toArray();
+      res.send(posts);
+    });
 
     //update about section
     app.put("/aboutupdate/:id", async (req, res) => {
