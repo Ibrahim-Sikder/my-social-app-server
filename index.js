@@ -41,3 +41,72 @@ async function run() {
       res.send(about);
     });
 
+
+    //get comments on front-end
+    app.get("/comment", async (req, res) => {
+      const post_id = req.query.post_id;
+      const query = { post_id: post_id };
+
+      const comment = await commentsCollection.find(query).toArray();
+      res.send(comment);
+    });
+
+    app.post("/posts", async (req, res) => {
+      const post = req.body;
+      const result = await postsCollection.insertOne(post);
+      res.send(result);
+    });
+    
+
+    //update about section
+    app.put("/aboutupdate/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const user = req.body;
+      console.log(user);
+      const option = { upsert: true };
+      const updatedUser = {
+        $set: {
+          name: user.name,
+          email: user.email,
+          university: user.university,
+          address: user.address,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedUser,
+        option
+      );
+      res.send(result);
+    });
+
+    app.put("/updatelike/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const like = req.body;
+      // console.log(like);
+      const option = { upsert: true };
+      const updatedlike = {
+        $set: {
+          likes: like.like,
+        },
+      };
+      const result = await postsCollection.updateOne(
+        filter,
+        updatedlike,
+        option
+      );
+      res.send(result);
+    });
+  } finally {
+  }
+}
+run().catch((error) => console.log(error));
+app.get("/", (req, res) => {
+  res.send("social media server is running ");
+});
+
+app.listen(port, () => {
+  console.log("server listening on port" + port);
+});
